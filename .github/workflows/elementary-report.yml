@@ -14,7 +14,7 @@ jobs:
     - name: Checkout dbt project
       uses: actions/checkout@v4
     
-    - name: Generate Elementary Report and Send
+    - name: Generate Elementary Report
       uses: elementary-data/run-elementary-action@v1.12
       with:
         warehouse-type: snowflake
@@ -22,12 +22,9 @@ jobs:
         profiles-yml: ${{ secrets.ELEMENTARY_PROFILES_YML }}
         edr-command: |
           edr report \
-            --file-path report.html &&
-          edr send-report \
-            --slack-token "${{ secrets.SLACK_TOKEN }}" \
-            --slack-channel-name "${{ secrets.SLACK_CHANNEL_NAME }}"
+            --file-path report.html
     
-    # GitHub Artifactsにもアップロード（バックアップ用）
+    # GitHub Artifactsにアップロード
     - name: Upload Report to Artifacts
       uses: actions/upload-artifact@v4
       with:
