@@ -23,7 +23,6 @@ jobs:
         edr-command: |
           edr report \
             --file-path report.html \
-            --disable-samples
 
     # Slack通知
     - name: Notify Slack with Report Link
