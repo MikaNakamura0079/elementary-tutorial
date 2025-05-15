@@ -1,0 +1,48 @@
+name: Elementary Data Report - slack
+
+on:
+  schedule:
+    # 毎日午前8時に実行（UTC）
+    - cron: '0 8 * * *'
+  workflow_dispatch: # 手動実行も可能
+
+jobs:
+  elementary-report:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout dbt project
+      uses: actions/checkout@v3
+    
+    - name: Run Elementary Report Generation
+      uses: elementary-data/run-elementary-action@v1.12
+      with:
+        warehouse-type: snowflake
+        adapter-version: 1.7.0
+        profiles-yml: ${{ secrets.ELEMENTARY_PROFILES_YML }}
+        edr-command: |
+          edr report \
+            --file-path report.html \
+            --project-name "My dbt Project" \
+            --timezone "Asia/Tokyo" \
+            --disable-samples &&
+          edr send-report \
+            --slack-webhook "${{ secrets.SLACK_WEBHOOK_URL }}" \
+            --file-path report.html
+    
+    # GitHub Artifactsにもアップロード（バックアップ用） #本格的に運用する場合は保存先としてS3バケット等を用意すると良い
+    - name: Upload Report to Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: elementary-report-${{ github.run_number }}
+        path: report.html
+        retention-days: 30
+    
+    # ログファイルのアップロード（トラブルシューティング用）
+    - name: Upload Log
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: elementary-log-${{ github.run_number }}
+        path: edr.log
+        retention-days: 7
