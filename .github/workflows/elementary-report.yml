@@ -23,9 +23,7 @@ jobs:
         edr-command: |
           edr report \
             --file-path report.html \
-            --project-name "My dbt Project" \
-            --timezone "Asia/Tokyo" \
-            --disable-samples &&
+            --disable-samples
           edr send-report \
             --slack-webhook "${{ secrets.SLACK_WEBHOOK_URL }}" \
             --file-path report.html
