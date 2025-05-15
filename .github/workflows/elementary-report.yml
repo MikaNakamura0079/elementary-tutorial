@@ -14,7 +14,7 @@ jobs:
     - name: Checkout dbt project
       uses: actions/checkout@v4
     
-    - name: Run Elementary Report Generation
+    - name: Generate Elementary Report
       uses: elementary-data/run-elementary-action@v1.12
       with:
         warehouse-type: snowflake
@@ -24,9 +24,16 @@ jobs:
           edr report \
             --file-path report.html \
             --disable-samples
-          edr send-report \
-            --slack-webhook "${{ secrets.SLACK_WEBHOOK_URL }}" \
-            --file-path report.html
+
+    # Slack通知
+    - name: Notify Slack with Report Link
+      uses: 8398a7/action-slack@v3
+      with:
+        status: success
+        webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+        message: |
+          📊 Elementary Report Generated
+          📄 Download: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
     
     # GitHub Artifactsにもアップロード（バックアップ用）
     - name: Upload Report to Artifacts
