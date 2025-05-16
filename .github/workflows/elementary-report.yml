@@ -2,8 +2,8 @@ name: Elementary Data Report - slack
 
 on:
   schedule:
-    # 毎日午前8時に実行（UTC）
-    - cron: '0 8 * * *'
+    # 毎日午前2時に実行（UTC）
+    - cron: '0 2 * * *'
   workflow_dispatch: # 手動実行も可能
 
 jobs:
@@ -22,7 +22,10 @@ jobs:
         profiles-yml: ${{ secrets.ELEMENTARY_PROFILES_YML }}
         edr-command: |
           edr report \
-            --file-path report.html
+            --file-path report.html &&
+          edr send-report \
+            --slack-token "${{ secrets.SLACK_TOKEN }}" \
+            --slack-channel-name "${{ secrets.SLACK_CHANNEL_NAME }}"
     
     # GitHub Artifactsにアップロード
     - name: Upload Report to Artifacts
